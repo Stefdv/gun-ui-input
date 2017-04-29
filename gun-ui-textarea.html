@@ -1,0 +1,264 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-input/paper-textarea.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../gun-ui-mixin/gun-ui-mixin.html">
+<!--
+`gun-ui-textarea`
+
+
+@demo demo/index.html 
+-->
+
+<dom-module id="gun-ui-textarea">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      paper-icon-button {
+        width:32px;height:32px;
+      }
+      paper-textarea.inline {
+        display:inline-block;
+        width:calc(100% - 40px);
+      }
+
+
+    </style>
+    <gun-ui-signals on-gun-ui-signal="_handleStateChange"></gun-ui-signals> 
+
+    <paper-textarea 
+      id="input" 
+      class$="{{_getClass(allowClear)}}"
+      no-label-float$="[[noLabelFloat]]"
+      value="{{_value}}" 
+      on-keydown="_userAction"
+      label="{{_getLabel(label,prop)}}" 
+      required="[[required]]"
+      auto-validate
+      error-message="[[errorMessage]]"
+      disabled$="[[disabled]]"
+      autocomplete$="[[autocomplete]]"
+      autofocus$="[[autofocus]]"
+      inputmode$="[[inputmode]]"
+      name$="[[name]]"
+      placeholder$="[[placeholder]]"
+      readonly$="[[readonly]]"
+      required$="[[required]]"
+      minlength$="[[minlength]]"
+      maxlength$="[[maxlength]]"
+      rows$="[[rows]]"
+      max-rows$="[[maxRows]]">
+    </paper-textarea>
+
+     <template is="dom-if" if="[[allowClear]]">
+       <paper-icon-button on-tap="_clearInput" icon="clear">
+      </paper-icon-button>
+     </template>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'gun-ui-textarea',
+      properties: {
+        /**
+         * attach a clear button to the input
+         * @type {Boolean}
+         */
+        allowClear:{type:Boolean,value:false },
+        /**
+         * Provide regex to validate input 
+         * @type {String}
+         */
+        allowedPattern:{type:String},
+        /**
+         * Set to true to always float the label. 
+       */
+      alwaysFloatLabel: {
+        type: Boolean,
+        value: false
+      },
+       /**
+       * Set to true to disable the floating label. 
+       */
+      noLabelFloat: {
+        type: Boolean,
+        value: false,
+        notify:true
+      },
+        /**
+         * The error message to display when the input is invalid.
+         * @type {String}
+         */
+        errorMessage:{type:String},
+        /**
+         * By default the input will update Gun on enter
+         * if you want to update while typing set 
+         * the 'instant'  attribute
+         * @type {Boolean}
+         */
+        instant: {type: Boolean,value:false},
+        /**
+         * The label for this input.
+         * @type {String}
+         */
+        label:{type:String},
+        /**
+       * The minimum length of the input value.
+       */
+        minlength: {
+          type: Number
+        },
+
+        /**
+         * The maximum length of the input value.
+         */
+        maxlength: {
+          type: Number
+        },
+
+        /**
+         * The minimum (numeric or date-time) input value.
+         */
+        min: {
+          type: String
+        },
+
+        /**
+         * The maximum (numeric or date-time) input value.
+         * Can be a String (e.g. `"2000-01-01"`) or a Number (e.g. `2`).
+         */
+        max: {
+          type: String
+        },
+        /**
+        * A placeholder string in addition to the label. If this is set, the label will always float.
+        */
+        placeholder: {
+          type: String,
+          // need to set a default so _computeAlwaysFloatLabel is run
+          value: ''
+        },
+
+        /**
+         * Limits the numeric or date-time increments.
+         */
+        step: {
+          type: String
+        },
+
+        /** 
+        * the node this property belongs to.
+        * aka 'gun.get(soul)'
+        * @type {String}
+        */
+       
+        soul: {type: String,value: false},
+        /**
+        * prop: The propertie/attribute this slider represents 
+        * aka `gun.get(soul).path(prop)`
+        * @type {String}
+        */
+        prop: { type: String,value: false},
+        
+        /**
+         * whether or not you want this input to 
+         * update when the property changes in Gun.
+         * This is false by default..This might seem strange
+         * for a gun-ui-element but it will make sence 
+         * if you use a lot of these..
+         * @type {Boolean}
+         */
+        subscribe: {type:Boolean, value:false },
+        /**
+         * The maximum number of rows this element can grow 
+         * to until it scrolls. 0 means no maximum.
+         * @type {Number}
+         */
+        maxRows:{type:Number,value:3},
+        /**
+         * The initial number of rows.
+         * @type {Number}
+         */
+        rows:{type:Number,value:1},
+        
+        
+        required:{type:Boolean,valu:false},
+        
+        pattern:{type:String},
+        
+        /**
+        * your typed value
+        */
+        _value: {type: String,notify:true,observer:'_valueChanged'},
+      },
+      behaviors: [Polymer.GunUiMixin],
+      ready() {
+        if(this.subscribe) { this._subscribe(); }
+      },
+      _getClass(allowClear){
+        return allowClear ? 'inline' : '';
+      },
+      _checkAutoValidate(required,pattern,allowedPattern){
+        if(required || pattern || allowedPattern ){
+          return true
+        }
+        return false
+      },
+      _getLabel(label,prop){
+        return label ? label : prop
+      },
+      _clearInput(e){
+        e.stopPropagation();
+        e.preventDefault();
+        this.$.input.value='';
+        if( this.type=='password'){
+          this.fire('password-entered',{value:e.target.value})
+        }
+        if(this.instant){
+          if( this.type!=='password') {
+            this.setValue('')
+          }
+
+        }
+        
+      },
+      _valueChanged(value){
+        if(this.instant){
+          if(this.$.input.validate()) {
+            this.setValue(value)
+          }
+        }
+      },
+      _subscribe() {
+        if(this.soul && this.prop) {
+          this.gun.get(this.soul).get(this.prop).on(v => {
+              if(this._value !== v) { this._value=v;}
+          },this)
+
+        } else {
+          console.warn('You have no soul and/or prop set !!');
+        };
+      },
+      /*
+      * User adjusted slider
+      */
+      _userAction(e,detail) {
+        if (e.keyCode === 13){
+          if(e.target.value !=='' && this.$.input.validate()) {
+            this.setValue(e.target.value);
+          } 
+        }
+      },
+      /* update Gun */
+      setValue(val) {
+        if(this.soul) {
+          this.gun.get(this.soul).get(this.prop).put(val)
+        };
+      },
+      _handleStateChange(e,detail){
+      }
+    });
+  </script>
+</dom-module>
