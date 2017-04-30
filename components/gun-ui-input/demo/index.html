@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+  <head>
+  <script src="https://rawgit.com/amark/gun/master/gun.min.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>gun-ui-input</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script>
+      window.Polymer = window.Polymer || {};
+      window.Polymer.dom = 'shadow';
+      localStorage.clear()
+    </script>
+    <link rel="import" href="../../polymer/polymer.html">
+    <link rel="import" href="../../gunui-demo-app/gunui-demo-app.html">
+    <link rel="import" href="../../gunui-demo-app/demo/demo-imports.html">
+    <link rel="import" href="../gun-ui-input.html">
+    <link rel="import" href="../gun-ui-textarea.html">
+    <style is="custom-style" include="demo-shared-styles">
+          :root{ }
+          body{
+            overflow:hidden;
+          }
+          gun-ui-input {
+            margin: 0 15px;
+          }
+          [no-label-float] {margin-top: 20px;}
+    </style>
+  </head>
+  <body>
+  <prism-highlighter></prism-highlighter>
+    <style is="custom-style" include="demo-shared-styles">
+          
+    </style>
+
+     <gunui-demo-app>
+      <!-- create pages -->
+
+       <div class="vertical-section centered" id="start">
+         <h3>What it does</h3>
+         <p>It's an input-field...that syncs with Gun</p>
+
+        <blockquote>
+           The attributes <span class="attribute">soul</span> and <span class="attribute">prop</span> will link the element to a data-point.<br>
+           The attribute <span class="attribute">subscribe</span> is what makes it 'Gun-aware'
+           you can read more about it <demo-link href="?gunui#gun-awareness">here</demo-link>
+         </blockquote> 
+      </div>
+
+      <div class="vertical-section centered" id="instant">
+        <div class="demo-header">
+          <h3>'Instant'</h3>
+          <p>Both gun-ui-input elements are subscribed to the same property</p>
+          <p>The second gun-ui-input has the attribute "<span class="attribute">instant</span>", this means it will update Gun while you type. ( The other one only updates when you hit enter )</p>
+        </div>
+        <demo-box>
+          <template>
+            <div class="row">
+              <gun-ui-input soul="demo" prop="input" label="Sync on enter" no-label-float subscribe></gun-ui-input> 
+              <gun-ui-input soul="demo" prop="input" label="Sync while typing" subscribe instant></gun-ui-input> 
+            </div>
+          </template>
+        </demo-box>
+      </div>
+
+      <div class="vertical-section centered" id="prefix">
+        <div class="demo-header">
+          <h3>'prefix' and 'prefix-icon'</h3>
+          <p>Use "<span class="attribute">prefix=""</span>" to set a character as prefix, or use "<span class="attribute">prefix-icon=""</span>" to use an icon as prefix</p>
+         <p>For icon names take a look <a href="https://www.webcomponents.org/element/PolymerElements/iron-icons/demo/demo/index.html" target="_blank">here</a></p>
+        </div>
+        <demo-box>
+          <template>
+            <div class="row">
+              <gun-ui-input prefix="$&nbsp;" soul="demo" prop="input" subscribe></gun-ui-input>
+              <gun-ui-input prefix-icon="icons:mail" soul="demo" prop="input" subscribe></gun-ui-input>
+            </div>
+          </template>
+        </demo-box>
+      </div>
+    
+     <div class="vertical-section centered" id="suffix">
+      <div class="demo-header">
+        <h3>'suffix' and 'suffix-icon'</h3>
+    <p>Use "<span class="attribute">suffix=""</span> to set a character as suffix, or use "<span class="attribute">suffix=""</span>" to use an icon as suffix</p>
+     <p>For icon names take a look <a href="https://www.webcomponents.org/element/PolymerElements/iron-icons/demo/demo/index.html" target="_blank">here</a></p>
+      </div>
+          <demo-box>
+            <template>
+              <div class="row">
+                <gun-ui-input suffix="$&nbsp;" soul="demo" prop="input" subscribe></gun-ui-input>
+                <gun-ui-input suffix-icon="icons:mail" soul="demo" prop="input" subscribe></gun-ui-input>
+              </div>
+            </template>
+          </demo-box>
+    </div>
+
+
+     <div class="vertical-section centered" id="password">
+      <div class="demo-header">
+      <h3>'type="password"'</h3>
+      <p>Like a regular input field you can set the type to 'password'. However a 'password' field will <b>never</b> auto-update to Gun!<br>Instead it will send a message to it's parent that you can listen for. Then you can decide what to do..</p>
+      <blockquote>Since it will never update to Gun you can omit the <span class="attribute">soul</span>,<span class="attribute">prop</span> and <span class="attribute">subscribe</span> attributes.
+      </blockquote>
+      <blockquote>
+      The gun-ui-input with <span class="attribute">type="password"</span> is one of the few occasions where you are required to use some javascipt.</fieldset>
+      </blockquote>
+      <div></div>
+      </div>
+
+    <template is="dom-bind" id="scope">
+
+       <div class="bind-demo">
+        <gun-ui-input on-password-entered="_handlePassword" type="password" label="password" prefix-icon="icons:lock-outline"  allow-clear></gun-ui-input>
+        <single-binding>enteredPassword</single-binding> : [[enteredPassword]]
+      </div>
+       <script>
+         var scope = document.querySelector('#scope')
+         scope._handlePassword = function(e,detail){
+          this.enteredPassword = detail.value
+         }
+       </script>
+    </template>
+
+    <demo-box no-render class="binder">
+    <template>
+       <gun-ui-input on-password-entered="_handlePassword" type="password" label="password" prefix-icon="icons:lock-outline"  allow-clear></gun-ui-input>
+
+       // Then in your app or component
+       <script>
+        Polymer({
+          is: 'myapp',
+
+          properties: {
+            enteredPassword:{ type:String, value:null }
+          },
+          _handlePassword(e,detail){
+            // do something with the password...verify or something
+            this.enteredPassword = detail.value
+          }
+      });
+    </script>
+    </template>
+    </demo-box>
+    </div>
+
+     <div class="vertical-section centered" id="validate">
+      
+        <h3>validation</h3>
+        <p>You can make a gun-ui-input a 'required' field by setting the "<span class="attribute">required</span>" attribute, you can also set a custom error message that will show if validation fails.</p>
+
+        <blockquote>
+        Offcourse a <prism-demo inline code="<gun-ui-input>"></prism-demo> with some kind of validation will only update to Gun if the entered value is valid.
+        </blockquote>
+        <demo-box>
+          <template>
+           <gun-ui-input required error-message="required!" label="required" soul="demo" prop="input"subscribe></gun-ui-input>
+          </template>
+        </demo-box>
+
+         <demo-box>
+          <div class="demo-header">
+          <p>You can set a (regex) pattern to validate</p>
+          </div>
+          <template>
+            <gun-ui-input pattern="[a-zA-Z]*" error-message="Only letters allowed!" label="letters only" soul="demo" prop="input" subscribe></gun-ui-input>
+          </template>
+        </demo-box>
+
+      <demo-box>
+        <p>Or (for an 'instant' field) validate while typing with "<span class="attribute">allowed-pattern</span>"</p>
+        <template>
+          <gun-ui-input live allowed-pattern="[a-zA-Z]" error-message="Only letters allowed!" label="You can only enter letters" soul="demo" prop="input" subscribe></gun-ui-input>
+        </template>
+      </demo-box>
+    </div>
+
+     <div class="vertical-section centered" id="clear">
+      <h3>'allow-clear'</h3>
+      <p>Set the attribute "<span class="attribute">allow-clear</span>"  to have a 'clear' button in your input.</p>
+      <demo-box>
+       <p>This will only clear the input field without updating Gun!</p>
+        <template>
+          <gun-ui-input allow-clear soul="demo" prop="input" subscribe  label="You can clear me..i won't update" soul="demo" prop="input"></gun-ui-input>
+        </template>
+      </demo-box>
+       
+      <demo-box>
+        <p>However..if you also set the"<span class="attribute">instant</span>" attribute it <b>will update Gun</b> when you clear it!<br>
+        You wanted 'instant' 😜</p>
+        <template>
+          <gun-ui-input instant allow-clear soul="demo" prop="input" subscribe  label="You can clear me but i will update"></gun-ui-input>
+        </template>
+      </demo-box>  
+
+     </div>
+
+      <div class="vertical-section centered" id="area">
+      <h3>gun-ui-textarea</h3>
+      <p><b>This is another element that comes with <prism-demo inline code="<gun-ui-input>"></prism-demo></b></p>
+      <p>You will have to import <prism-demo inline code="<gun-ui-textarea>"></prism-demo> separately!!<br>
+      <prism-demo code="<link rel='import' href='../gun-ui-input/gun-ui-textarea.html'>" lang="html"></prism-demo></p>
+      <p>'prefix' and 'suffix' are not supported in a textarea</p>
+      <demo-box>
+        <p><span class="attribute">rows="3"</span> this is the initial height, <span class="attribute">max-rows="5"</span> the number of rows it can grow before it starts to scroll</p>
+        <template>
+          <gun-ui-textarea no-label-float soul="demo" prop="area" label="I grow" rows="3" max-rows="5" subscribe></gun-ui-textarea>
+          <gun-ui-textarea soul="demo" prop="area" label="I grow" instant subscribe allow-clear></gun-ui-textarea>
+        </template>
+      </demo-box>
+       
+     
+
+     </div>
+    </gunui-demo-app>
+  </body>
+ </html>
