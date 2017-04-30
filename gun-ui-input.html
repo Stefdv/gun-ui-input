@@ -99,7 +99,8 @@
       },
       behaviors: [Polymer.GunUiMixin],
       ready() {
-        if(this.subscribe) { this._subscribe(); }
+        this.subscribe ? this._subscribe() : this._getCurrentData()
+      
       },
       _checkAutoValidate(required,pattern,allowedPattern){
         if(required || pattern || allowedPattern ){
@@ -140,13 +141,19 @@
       },
       _subscribe() {
         if(this.soul && this.prop) {
-          this.gun.get(this.soul).get(this.prop).on(v => {
-              if(this._value !== v) { this._value=v;}
-          },this)
+         this._on({soul:this.soul,prop:this.prop},(v)=>{
+             this._value = v ? 0;
+          })
 
         } else {
           console.warn('You have no soul and/or prop set !!');
         };
+      },
+      _getCurrentData(){
+       this._read({soul:this.soul,prop:this.prop})
+            .then( (value) => {
+              this._value = value ? 0;
+            })     
       },
       /*
       * User adjusted slider
@@ -165,11 +172,10 @@
       /* update Gun */
       setValue(val) {
         if(this.soul) {
-          this.gun.get(this.soul).get(this.prop).put(val)
+          this._update({soul:this.soul,prop:this.prop,data:val})
         };
       },
       _handleStateChange(e,detail){
-        console.log(detail)
         if(detail.soul == this.soul){
    
         }
