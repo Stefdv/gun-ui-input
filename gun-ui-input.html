@@ -144,7 +144,7 @@
         if(this.soul && this.prop) {
          this._on({soul:this.soul,prop:this.prop},(v)=>{
           console.log(v)
-             this._value = v ? v : 'off';
+             this._value = v ? v : '';
           })
 
         } else {
@@ -154,7 +154,7 @@
       _getCurrentData(){
        this._read({soul:this.soul,prop:this.prop})
             .then( (value) => {
-              this._value = value ? value : 'off';
+              this._value = value ? value : '';
             })     
       },
       /*
