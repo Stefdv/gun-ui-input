@@ -99,6 +99,7 @@
       },
       behaviors: [Polymer.GunUiMixin],
       ready() {
+        console.log('ready ',this.subscribe)
         this.subscribe ? this._subscribe() : this._getCurrentData()
       
       },
@@ -142,7 +143,8 @@
       _subscribe() {
         if(this.soul && this.prop) {
          this._on({soul:this.soul,prop:this.prop},(v)=>{
-             this._value = v ? v : '';
+          console.log(v)
+             this._value = v ? v : 'off';
           })
 
         } else {
@@ -152,7 +154,7 @@
       _getCurrentData(){
        this._read({soul:this.soul,prop:this.prop})
             .then( (value) => {
-              this._value = value ? value : '';
+              this._value = value ? value : 'off';
             })     
       },
       /*
